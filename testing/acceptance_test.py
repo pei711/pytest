@@ -401,6 +401,22 @@ class TestGeneralUsage:
         assert res.ret
         res.stderr.fnmatch_lines(["*ERROR*not found*"])
 
+    def test_direct_addressing_notfound_parametrization(
+        self, pytester: Pytester
+    ) -> None:
+        p = pytester.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.parametrize("value", [pytest.param(1, id="one")])
+            def test_func(value):
+                pass
+            """
+        )
+        res = pytester.runpytest(p.name + "::test_func[missing]")
+        assert res.ret
+        res.stderr.fnmatch_lines(["*ERROR: not found: *test_func[[]missing[]]"])
+
     def test_docstring_on_hookspec(self) -> None:
         from _pytest import hookspec
 
